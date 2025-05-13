@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>尼山頭幫 專用漠北對決棋盤</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: sans-serif;
+      background: #222 url('https://i.imgur.com/I9wZWzM.jpeg') no-repeat center center;
+      background-size: cover;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    h1 {
+      margin: 20px 0 10px;
+      font-size: 3rem;
+      color: #ffd700;
+      font-weight: bold;
+      text-shadow: 3px 3px 6px #000;
+    }
+    #board {
+      position: relative;
+      width: 800px;
+      height: 800px;
+      background: url('https://upload.wikimedia.org/wikipedia/commons/thumb/3/3b/Bagua.svg/1024px-Bagua.svg.png') no-repeat center center;
+      background-size: contain;
+      margin-bottom: 20px;
+    }
+    .position {
+      position: absolute;
+      width: 80px;
+      height: 80px;
+      text-align: center;
+    }
+    .piece {
+      display: inline-block;
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      color: white;
+      font-size: 12px;
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: grab;
+      flex-direction: column;
+      user-select: none;
+    }
+    .red { background: red; }
+    .orange { background: orange; }
+    .blue { background: blue; }
+    .palette {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin-bottom: 20px;
+      gap: 10px;
+    }
+    .editable {
+      background: #eef;
+      color: #333;
+      padding: 2px;
+      border-radius: 4px;
+      border: 1px dashed #999;
+    }
+    #trashBin {
+      width: 60px;
+      height: 60px;
+      background: gray;
+      border-radius: 50%;
+      margin-top: 20px;
+      text-align: center;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 14px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <h1>尼山頭幫 專用漠北對決棋盤</h1>
+  <div class="palette" id="palette">
+    <div class="piece red" draggable="true" data-name="尼山頭傳奇">尼山頭傳奇</div>
+    <div class="piece orange" draggable="true" data-name="尼山頭釋迦">尼山頭釋迦</div>
+    <div class="piece orange" draggable="true" data-name="尼山頭卡住">尼山頭卡住</div>
+    <div class="piece orange" draggable="true" data-name="尼山頭悠悠">尼山頭悠悠</div>
+    <div class="piece orange" draggable="true" data-name="尼山頭好壯壯">尼山頭好壯壯</div>
+    <div class="piece orange" draggable="true" data-name="尼山頭天樂">尼山頭天樂</div>
+    <div class="piece orange" draggable="true" data-name="尼山頭喵喵">尼山頭喵喵</div>
+    <div class="piece orange" draggable="true" data-name="尼山頭喵緲">尼山頭喵緲</div>
+    <div class="piece blue editable" draggable="true" contenteditable="true">成員1</div>
+    <div class="piece blue editable" draggable="true" contenteditable="true">成員2</div>
+  </div>
+
+  <div id="board"></div>
+  <div id="trashBin">垃圾桶</div>
+
+  <script>
+    const board = document.getElementById("board");
+    const trashBin = document.getElementById("trashBin");
+    const positions = 8;
+    const center = { x: 400, y: 400 };
+    const radius = 250;
+
+    for (let i = 0; i < positions; i++) {
+      const angle = (i / positions) * 2 * Math.PI;
+      const x = center.x + radius * Math.cos(angle) - 40;
+      const y = center.y + radius * Math.sin(angle) - 40;
+
+      const div = document.createElement("div");
+      div.className = "position";
+      div.style.left = x + "px";
+      div.style.top = y + "px";
+      div.addEventListener("dragover", e => e.preventDefault());
+      div.addEventListener("drop", e => {
+        e.preventDefault();
+        const data = e.dataTransfer.getData("text/plain");
+        const original = document.getElementById(data);
+        const clone = original.cloneNode(true);
+        clone.id = "clone-" + Math.random().toString(36).substring(2, 9);
+        if (clone.classList.contains("editable")) {
+          clone.contentEditable = "true";
+        }
+        div.appendChild(clone);
+      });
+      board.appendChild(div);
+    }
+
+    document.querySelectorAll(".piece").forEach(piece => {
+      piece.id = "piece-" + Math.random().toString(36).substring(2, 9);
+      piece.addEventListener("dragstart", e => {
+        e.dataTransfer.setData("text/plain", piece.id);
+      });
+    });
+
+    trashBin.addEventListener("dragover", e => e.preventDefault());
+    trashBin.addEventListener("drop", e => {
+      e.preventDefault();
+      const data = e.dataTransfer.getData("text/plain");
+      const element = document.getElementById(data);
+      if (element) {
+        element.remove();
+      }
+    });
+  </script>
+</body>
+</html>
